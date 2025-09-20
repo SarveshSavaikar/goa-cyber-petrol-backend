@@ -7,13 +7,13 @@ import uvicorn
 from db import create_tables
 
 # Import all route handlers
-from routes import ingestion, flags, dashboard, evidence, hotels
+from routes import ingestion, flags, dashboard, evidence, hotels, alerts, settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Create database tables
-    create_tables()
-    print("Database tables created successfully")
+    # Startup: Create database tables asynchronously
+    await create_tables()
+    print("PostgreSQL database tables created successfully")
     
     yield
     
@@ -43,6 +43,8 @@ app.include_router(flags.router)
 app.include_router(dashboard.router)
 app.include_router(evidence.router)
 app.include_router(hotels.router)
+app.include_router(alerts.router)
+app.include_router(settings.router)
 
 @app.get("/")
 async def root():
