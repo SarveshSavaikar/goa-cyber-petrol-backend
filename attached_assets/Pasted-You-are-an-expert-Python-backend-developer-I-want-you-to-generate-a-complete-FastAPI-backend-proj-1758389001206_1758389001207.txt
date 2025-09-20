@@ -1,0 +1,134 @@
+You are an expert Python backend developer. I want you to **generate a complete FastAPI backend project** for a hackathon MVP called "Goa Cyber Patrol". The backend should be **built in FastAPI** and structured so that it can be **easily integrated with a React frontend**. Follow these exact requirements:
+
+---
+
+## 1️⃣ Project Overview
+
+- Purpose: Detect online scams, fake hotels, and suspicious content from Telegram and Instagram.
+- Features:
+  1. Data ingestion from **Telegram (Telethon)** and **Instagram hashtag scraping**.
+  2. Rule-based **keyword/regex flagging** for scams, gambling, fake jobs, and prostitution.
+  3. **Fake hotel detection** using an official resort CSV file.
+  4. **Evidence logging** with platform, message, date, flagged reason, risk score, author, and optional screenshots.
+  5. **Dashboard-ready endpoints** returning JSON for live feed and stats.
+  6. Hardcoded **takedown recommendations**:
+     - Scam → "Report to Cyber Cell"
+     - Fake hotel → "Report to Tourism Dept"
+     - Prostitution/Gambling → "Escalate for legal action"
+
+- Backend should be **FastAPI-based**, fully async where possible, with **JSON responses** compatible with React frontend.
+
+---
+
+## 2️⃣ Tech Stack
+
+- **Backend Framework:** FastAPI (async, REST API)
+- **Database:** SQLite (flagged_posts.db)
+- **Web Scraping / Data Ingestion:**  
+  - Telegram: Telethon  
+  - Instagram: requests + BeautifulSoup or instaloader
+- **Other Libraries:** Pandas (CSV), Regex (keyword scanning)  
+- Optional: APScheduler (periodic scraping), Puppeteer/Playwright (screenshots)
+
+---
+
+## 3️⃣ Backend Folder Structure
+
+/backend
+  ├── main.py              # FastAPI entrypoint
+  ├── db.py                # SQLite connection/session setup
+  ├── models.py            # ORM models / tables
+  ├── routes/
+  │     ├── ingestion.py   # Telegram & Instagram ingestion endpoints
+  │     ├── flags.py       # Keyword & fake hotel flagging endpoints
+  │     ├── dashboard.py   # Stats and live feed endpoints
+  │     ├── evidence.py    # Evidence logging endpoints
+  │     └── hotels.py      # Fake hotel checking endpoints
+  ├── utils/
+  │     ├── telegram_client.py
+  │     ├── instagram_scraper.py
+  │     └── keyword_checker.py
+  ├── data/
+  │     ├── flagged_posts.db
+  │     └── official_resorts.csv
+
+---
+
+## 4️⃣ Database Models
+
+### flagged_posts
+- id: INTEGER PK
+- platform: TEXT (Telegram / Instagram)
+- message_text: TEXT
+- date: DATETIME
+- flagged_reason: TEXT
+- risk_score: INTEGER (0–100)
+- author_id: TEXT
+- screenshot_path: TEXT (optional)
+- takedown_recommendation: TEXT
+
+### fake_hotels
+- id: INTEGER PK
+- claimed_name: TEXT
+- website_domain: TEXT
+- status: TEXT (✅ Official / ❌ Fake)
+- screenshot: TEXT (optional)
+- notes: TEXT
+
+---
+
+## 5️⃣ API Endpoints
+
+### **Data Ingestion**
+- POST /ingest/telegram → fetch latest Telegram messages, save flagged posts
+- POST /ingest/instagram → fetch latest posts by hashtags, save flagged posts
+
+### **Keyword / Rule-Based Flagging**
+- POST /flag/message → input: message text → output: risk_score + flagged_reason
+- POST /flag/hotel → input: hotel name/domain → output: status + notes, save to DB
+
+### **Dashboard / Stats**
+- GET /dashboard/stats → JSON: total posts scanned, suspicious content, high-risk alerts, fake hotels detected
+- GET /dashboard/feed → latest flagged posts for frontend “Live Alerts Feed”
+
+### **Evidence Logs**
+- GET /evidence → filterable by platform/category/risk → snippet, reason, risk, date, author
+- GET /evidence/{id} → full post, highlighted keywords, screenshot, takedown recommendation
+
+### **Fake Hotels**
+- GET /hotels → list all hotels
+- POST /hotels/check → input hotel name/domain → output status + notes
+
+### **Optional Settings**
+- POST /settings/upload_resorts → upload CSV to replace/update official resort list
+
+---
+
+## 6️⃣ Logic / Rules
+
+- Hardcode scammy keywords: "loan", "casino", "escort", "resort", "work from home", "earn daily"
+- Risk scoring:
+  - 1 keyword = 40
+  - 2 keywords = 70
+  - Keyword + money amount (₹\d+, INR) = 90
+- Fake hotel detection: compare with official CSV list, mark as ✅ Official or ❌ Fake
+- Takedown recommendations based on category
+
+---
+
+## 7️⃣ Integration Notes
+
+- All endpoints must return **JSON responses compatible with React frontend**
+- Include **comments in code** for clarity
+- Include **SQLite setup** and models ready to use
+- Ensure backend can run with: `uvicorn main:app --reload`
+- Structure code for **easy frontend integration**, e.g., endpoints return `{ data: [...] }` and `{ message: "", status: "success" }` where applicable
+
+---
+
+## 8️⃣ Output Request
+
+- Generate **all necessary Python files** according to folder structure
+- Include **FastAPI routes, models, and utility functions**
+- Ensure backend is **ready to run and test** for hackathon demo
+- Focus on **minimal MVP features**, no ML required, but structured for **future AI extension**
