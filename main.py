@@ -27,11 +27,15 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+origins = [
+    "http://localhost:8080",  # Your React app's address
+    "http://localhost:8000",
+]
 
 # CORS middleware for React frontend integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify exact origins
+    allow_origins=origins,  # In production, specify exact origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
